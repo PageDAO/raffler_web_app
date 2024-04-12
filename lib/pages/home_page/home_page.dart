@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:raffle_application/models/NFTContract.dart';
 import 'package:raffle_application/models/owner.dart';
-import 'package:raffle_application/pages/home_page/widgets/nft_input.dart';
 import 'package:raffle_application/pages/home_page/widgets/nft_input_form.dart';
 import 'package:raffle_application/services/string_functs.dart';
 import 'package:raffle_application/services/tickets.dart';

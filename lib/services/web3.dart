@@ -38,7 +38,7 @@ Future<void> fetchContract() async {
 Future<List<Owner>?> fetchNFTHolders() async {
   String tokenContractAddress = '0x464c77eea43f403b9548b61a2ac749cae954c21b';
   String tokenId = "1";
-  String openSeaApiKey = <input_api_key>;
+  String openSeaApiKey = '02ffbeef6f9b442db661800b65549122';
   String chain = "optimism";
 
   try {

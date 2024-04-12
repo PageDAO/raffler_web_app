@@ -1,6 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:raffle_application/models/NFTContract.dart';
 import 'package:raffle_application/models/owner.dart';
 import 'package:raffle_application/pages/home_page/widgets/nft_input_form.dart';
@@ -32,6 +31,11 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController contractAddressController = TextEditingController();
   TextEditingController tokenIDController = TextEditingController();
   final TextEditingController apiKeyController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,9 +180,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                       children: [
                                         Text("$idx. "),
                                         Text(nft.chain),
-                                        Text("  "),
+                                        const Text("  "),
                                         Text(formatAddress(nft.address)),
-                                        Text("    "),
+                                        const Text("    "),
                                         InkWell(
                                           onTap: () {
                                             setState(() {
@@ -249,8 +253,42 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         ElevatedButton(
                           onPressed: () async {
-                            if (!fetchedOwnersList) {
-                              List<Owner>? response = await fetchNFTHolders();
+                            if (apiKeyController.text.isEmpty) {
+                              Fluttertoast.showToast(
+                                  msg: "Input your OpenSea API",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.TOP,
+                                  timeInSecForIosWeb: 3,
+                                  webShowClose: true,
+                                  webPosition: "right",
+                                  webBgColor:
+                                      "linear-gradient(to right, #33FFD3, #33FFD3)",
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.background,
+                                  textColor:
+                                      const Color.fromARGB(255, 32, 32, 32),
+                                  fontSize: 14.0);
+                            }
+                            if (nfts.isEmpty) {
+                              Fluttertoast.showToast(
+                                  msg: "Add your NFT",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.TOP,
+                                  timeInSecForIosWeb: 3,
+                                  webShowClose: true,
+                                  webPosition: "right",
+                                  webBgColor:
+                                      "linear-gradient(to right, #33FFD3, #33FFD3)",
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.background,
+                                  textColor:
+                                      const Color.fromARGB(255, 32, 32, 32),
+                                  fontSize: 14.0);
+                            }
+                            if (!fetchedOwnersList &&
+                                apiKeyController.text.isNotEmpty) {
+                              List<Owner>? response = await fetchNFTHolders(
+                                  nfts, apiKeyController.text);
                               if (response != null) {
                                 fetchedOwnersList = true;
                                 owners = response;

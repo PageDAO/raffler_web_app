@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/PageDAO/raffler_web_app/main/ui_screenshot.png" height="250" alt="NFT Raffle Drawing" />
+  <img src="https://github.com/PageDAO/raffler_web_app/blob/main/ui_screenshot.png" height="250" alt="NFT Raffle Drawing" />
 </p>
 <p align="center">
   <em>A Web App to Host NFT 🎟️ Drawings</em>

@@ -5,14 +5,18 @@ import 'package:raffle_application/models/contract.dart';
 import 'package:raffle_application/models/owner.dart';
 import 'package:raffle_application/static/contracts.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+
 
 import 'package:http/http.dart' as http;
 
 // Walkthrough docs: https://web3auth.io/docs/connect-blockchain/evm/optimism/flutter
 
 Future<void> fetchContract() async {
-  var rpcUrl = "https://mainnet.optimism.io"; //Replace with your API
-
+  await dotenv.load(fileName: ".env");
+  String rpcUrl = dotenv.env['RPC_URL'] ?? "https://mainnet.optimism.io";
+  
   // read from contract
   Web3Client client = Web3Client(rpcUrl, http.Client());
 
@@ -36,10 +40,10 @@ Future<void> fetchContract() async {
 // https://docs.opensea.io/reference/openapi-definition
 
 Future<List<Owner>?> fetchNFTHolders() async {
-  String tokenContractAddress = '0x464c77eea43f403b9548b61a2ac749cae954c21b';
-  String tokenId = "1";
-  String openSeaApiKey = <insert_opensea_apikey>;
-  String chain = "optimism";
+  String tokenContractAddress = dotenv.env['TOKEN_CONTRACT_ADDRESS'] ?? 'default_contract_address';
+  String tokenId = dotenv.env['TOKEN_ID'] ?? 'default_token_id';
+  String openSeaApiKey = dotenv.env['OPEN_SEA_API_KEY'] ?? 'default_api_key';
+  String chain = dotenv.env['CHAIN'] ?? 'default_chain';
 
   try {
     // final response =

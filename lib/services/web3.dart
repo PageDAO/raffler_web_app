@@ -38,12 +38,10 @@ Future<void> fetchContract() async {
 Future<List<Owner>?> fetchNFTHolders() async {
   String tokenContractAddress = '0x464c77eea43f403b9548b61a2ac749cae954c21b';
   String tokenId = "1";
-  String openSeaApiKey = <insert_opensea_apikey>;
+  String openSeaApiKey = <input_api_key>;
   String chain = "optimism";
 
   try {
-    // final response =
-    //     await http.get(Uri.parse("https://api.opensea.io/api/v1/health"));
     final response = await http.get(
         Uri.parse(
             "https://api.opensea.io/api/v2/chain/${chain}/contract/${tokenContractAddress}/nfts/${tokenId}"),

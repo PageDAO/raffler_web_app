@@ -1,11 +1,11 @@
 // import 'package:http/http.dart'; //You can also import the browser version
 import 'dart:convert';
 
-import 'package:raffle_application/models/NFTContract.dart';
-import 'package:raffle_application/models/contract.dart';
-import 'package:raffle_application/models/owner.dart';
-import 'package:raffle_application/static/blockexplorer_apis.dart';
-import 'package:raffle_application/static/contracts.dart';
+import 'package:Raffler/models/NFTContract.dart';
+import 'package:Raffler/models/contract.dart';
+import 'package:Raffler/models/owner.dart';
+import 'package:Raffler/static/blockexplorer_apis.dart';
+import 'package:Raffler/static/contracts.dart';
 import 'package:web3dart/web3dart.dart';
 
 import 'package:http/http.dart' as http;

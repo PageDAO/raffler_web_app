@@ -1,4 +1,4 @@
-import 'package:raffle_application/models/contract.dart';
+import 'package:Raffler/models/contract.dart';
 
 class Contracts {
   Contract get test => Contract(

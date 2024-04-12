@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:raffle_application/models/NFTContract.dart';
-import 'package:raffle_application/models/owner.dart';
-import 'package:raffle_application/pages/home_page/widgets/nft_input_form.dart';
-import 'package:raffle_application/services/string_functs.dart';
-import 'package:raffle_application/services/tickets.dart';
-import 'package:raffle_application/services/web3.dart';
+import 'package:Raffler/models/NFTContract.dart';
+import 'package:Raffler/models/owner.dart';
+import 'package:Raffler/pages/home_page/widgets/nft_input_form.dart';
+import 'package:Raffler/services/string_functs.dart';
+import 'package:Raffler/services/tickets.dart';
+import 'package:Raffler/services/web3.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});

@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:raffle_application/models/owner.dart';
+import 'package:Raffler/models/owner.dart';
 
 Map<int, String> buildTixDict(List<Owner> owners) {
   Map<int, String> ticketsDict = {};

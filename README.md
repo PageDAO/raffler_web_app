@@ -6,9 +6,9 @@
 </p>
 
 
-# NFT Raffle Drawing
+# Raffler!
 
-A web app to handle raffle ticket drawings for any single-item number NFT on optimism network.
+A Web3 dApp to randomly select an owner of an NFT.
 
 Requirements:
 1. OpenSeaAPIKey

@@ -1,4 +1,5 @@
 import 'package:Raffler/pages/home_page/widgets/alert_dialog.dart';
+import 'package:Raffler/services/url_launch.dart';
 import 'package:Raffler/shared/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -134,64 +135,77 @@ class _MyHomePageState extends State<MyHomePage> {
                                         padding: const EdgeInsets.all(0),
                                         splashRadius: 28,
                                         onPressed: () async {
-                                          await showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return Web3AlertDialog(
-                                                title: 'Add NFT Contract',
-                                                content: SizedBox(
-                                                  height: 99,
-                                                  child: NFTInputForm(
-                                                    chainIDController:
-                                                        chainIDController,
-                                                    contractAddressController:
-                                                        contractAddressController,
-                                                    tokenIDController:
-                                                        tokenIDController,
+                                          if (apiKeyController.text.isEmpty) {
+                                            showToast(
+                                                "Input your OpenSea API Key",
+                                                context);
+                                          }
+                                          if (apiKeyController
+                                              .text.isNotEmpty) {
+                                            await showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return Web3AlertDialog(
+                                                  title: 'Add NFT Contract',
+                                                  content: SizedBox(
+                                                    height: 99,
+                                                    child: NFTInputForm(
+                                                      chainIDController:
+                                                          chainIDController,
+                                                      contractAddressController:
+                                                          contractAddressController,
+                                                      tokenIDController:
+                                                          tokenIDController,
+                                                    ),
                                                   ),
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      // get the nft information, then add it to the
-                                                      NFT submittedNFT = NFT(
-                                                          chain:
-                                                              chainIDController
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () async {
+                                                        // get the nft information, then add it to the
+                                                        if (apiKeyController
+                                                            .text.isNotEmpty) {
+                                                          NFT submittedNFT = NFT(
+                                                              chain:
+                                                                  chainIDController
+                                                                      .text,
+                                                              id: tokenIDController
                                                                   .text,
-                                                          id: tokenIDController
-                                                              .text,
-                                                          address:
-                                                              contractAddressController
+                                                              address:
+                                                                  contractAddressController
+                                                                      .text);
+                                                          NFT? nft = await getNFT(
+                                                              submittedNFT,
+                                                              apiKeyController
                                                                   .text);
-                                                      // NFT? nft = await getNFT(
-                                                      //     submittedNFT,
-                                                      //     apiKeyController
-                                                      //         .text);
-                                                      // if (nft == null) {
-                                                      //   showToast(
-                                                      //       "NFT Not Found",
-                                                      //       context);
-                                                      // } else {
-                                                      //   Navigator.pop(
-                                                      //       context, true);
+                                                          if (nft == null) {
+                                                            showToast(
+                                                                "NFT Not Found",
+                                                                context);
+                                                          } else {
+                                                            Navigator.pop(
+                                                                context, true);
 
-                                                      nfts.add(submittedNFT);
+                                                            nfts.add(nft);
 
-                                                      // clear the text editing controllers
-                                                      chainIDController.clear();
-                                                      contractAddressController
-                                                          .clear();
-                                                      tokenIDController.clear();
+                                                            // clear the text editing controllers
+                                                            chainIDController
+                                                                .clear();
+                                                            contractAddressController
+                                                                .clear();
+                                                            tokenIDController
+                                                                .clear();
 
-                                                      setState(() {});
-                                                      // }
-                                                    },
-                                                    child: const Text('Add'),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
+                                                            setState(() {});
+                                                          }
+                                                        }
+                                                      },
+                                                      child: const Text('Add'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          }
                                         },
                                         icon: const Icon(Icons.add)),
                                   ],
@@ -210,6 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       color:
                                           Theme.of(context).colorScheme.primary,
                                       width: 2)),
+                              padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
                               child: ListView.builder(
                                 itemCount: nfts.length,
                                 shrinkWrap: true,
@@ -220,11 +235,48 @@ class _MyHomePageState extends State<MyHomePage> {
                                     padding: const EdgeInsets.only(right: 12),
                                     child: Row(
                                       children: [
-                                        Text("$idx. "),
-                                        Text(nft.chain),
-                                        const Text("  "),
-                                        Text(formatAddress(nft.address)),
-                                        const Text("    "),
+                                        Row(
+                                          children: [
+                                            // Text("$idx. "),
+                                            Text(nft.chain.substring(0, 4)),
+                                            // Failed Attempt to render IPFS image. Fails with error:
+                                            // nft.imageUrl != null
+                                            //     ? Builder(builder: (context) {
+                                            //         print(
+                                            //             "Loading the NFTs, image URL: ${nft.imageUrl}");
+                                            //         return Image.network(
+                                            //           nft.imageUrl!,
+                                            //           width: 20,
+                                            //           height: 20,
+                                            //         );
+                                            //       })
+                                            //     : Container(
+                                            //         width: 14,
+                                            //       ),
+                                            const Text("   "),
+                                            Text(formatAddress(nft.address)),
+                                            const Text("   "),
+                                            Tooltip(
+                                              message: "View in OpenSea",
+                                              child: InkWell(
+                                                onTap: () async {
+                                                  if (nft.openseaUrl != null) {
+                                                    await launchURL(
+                                                        nft.openseaUrl);
+                                                  }
+                                                },
+                                                child: Icon(
+                                                  Icons.launch,
+                                                  size: 20,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Expanded(child: Container()),
                                         InkWell(
                                           onTap: () {
                                             setState(() {
@@ -312,7 +364,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onPressed: () async {
                                   if (apiKeyController.text.isEmpty) {
                                     showToast(
-                                        "Input your OpenSea API", context);
+                                        "Input your OpenSea API Key", context);
                                   }
                                   if (nfts.isEmpty) {
                                     showToast("Add your NFT", context);

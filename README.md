@@ -31,3 +31,25 @@ Requirements:
 
 1. Setup your flutter environment
 2. Build application
+
+
+https://docs.syndicate.io/get-started/introduction
+
+curl -H 'Authorization: Bearer GBZ2s7NJkW6wM82uNw2S' \
+ -H "Content-type: application/json" \
+  -d '{
+  "projectId": "8f00e6f1-1fe9-43a9-92a7-cdba63b7a176",
+  "contractAddress": "0x70937D935a4abDaF545E41a32c63c593b32f2a0D",
+  "chainId": 666666666,
+  "functionSignature": "createWithOpenMint(address owner,string calldata name,string calldata symbol)",
+  "args": {
+    "owner": "0x276058256ead8cfac715de5130d1b1d8b5cd98fa",
+    "name": "Deploy on Degen Workshop: Raffler NFT",
+    "symbol": "WINTIX"
+  }
+ }' \
+ 'https://api.syndicate.io/transact/sendTransaction'
+
+
+### Drive
+ https://drive.google.com/file/d/1h8ZR_aublQyk7-mUbxtv2P0qskdxoXPQ/view?usp=sharing

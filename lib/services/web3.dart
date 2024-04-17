@@ -37,6 +37,30 @@ Future<void> fetchContract() async {
 
 // https://docs.opensea.io/reference/openapi-definition
 
+Future<NFT?> getNFT(NFT nft, String openSeaApiKey) async {
+  Function? address = Api().uris["optimism"];
+
+  // print(address!(chain, tokenContractAddress, tokenId));
+  String nftUri = address!(nft.chain, nft.address, nft.id.isEmpty ? 1 : nft.id);
+  try {
+    final response = await http.get(Uri.parse(nftUri), headers: {
+      'Content-Type': 'application/json',
+      'X-API-KEY': openSeaApiKey
+    });
+
+    if (response.statusCode == 200) {
+      var responseBody = response.body;
+      Map<String, dynamic> nftResponse = json.decode(responseBody);
+      // RETURN MORE NFT INFORMATION
+
+      return nft;
+    }
+  } catch (e) {
+    print(e.toString());
+    return null;
+  }
+}
+
 Future<List<Owner>?> fetchNFTHolders(
     List<NFT> nfts, String openSeaApiKey) async {
   Function? address = Api().uris["optimism"];
@@ -53,6 +77,9 @@ Future<List<Owner>?> fetchNFTHolders(
       if (response.statusCode == 200) {
         var responseBody = response.body;
         Map<String, dynamic> holders = json.decode(responseBody);
+        // RETURN MORE NFT INFORMATION
+
+        // RETURN LIST OF OWNERS
         for (var ownerData in holders['nft']['owners']) {
           owners.add(Owner(
             address: ownerData['address'],
@@ -61,6 +88,7 @@ Future<List<Owner>?> fetchNFTHolders(
         }
       } else {
         print('Request failed with status: ${response.statusCode}.');
+        print(response.body);
         return null;
       }
     } catch (e) {

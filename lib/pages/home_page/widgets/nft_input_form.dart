@@ -49,7 +49,9 @@ class _NFTInputFormState extends State<NFTInputForm> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8.0,
+      ),
       child: Form(
         key: _formKey,
         child: Column(children: [
@@ -64,6 +66,9 @@ class _NFTInputFormState extends State<NFTInputForm> {
               return null;
             },
           ),
+          const SizedBox(
+            height: 2,
+          ),
           TextFormField(
             controller: _contractAddressController,
             decoration: inputDecoration.copyWith(labelText: "Contract Address"),
@@ -75,9 +80,13 @@ class _NFTInputFormState extends State<NFTInputForm> {
               return null;
             },
           ),
+          const SizedBox(
+            height: 2,
+          ),
           TextFormField(
             controller: _tokenIDController,
-            decoration: inputDecoration.copyWith(labelText: "Token ID"),
+            decoration:
+                inputDecoration.copyWith(labelText: "Token ID  (Optional)"),
             style: style,
             validator: (value) {
               if (value!.isEmpty) {

@@ -1,3 +1,5 @@
+import 'package:Raffler/pages/home_page/widgets/alert_dialog.dart';
+import 'package:Raffler/shared/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:Raffler/models/NFTContract.dart';
@@ -24,8 +26,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int tixWidgetKey = 1;
   MapEntry<int, String>? winningTicket;
   List<NFT> nfts = [];
-
-  bool nftMenuOpen = false;
+  List<Owner> winners = [];
 
   TextEditingController chainIDController = TextEditingController();
   TextEditingController contractAddressController = TextEditingController();
@@ -80,8 +81,39 @@ class _MyHomePageState extends State<MyHomePage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       const SizedBox(
-                        height: 30,
+                        height: 25,
                       ),
+                      if (winners.isNotEmpty)
+                        SizedBox(
+                          height: 20,
+                          child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth:
+                                    MediaQuery.of(context).size.width - 24,
+                              ),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: List<Widget>.generate(
+                                    winners.length,
+                                    (index) => Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: Text(
+                                        winners[index].address,
+                                        style: const TextStyle(
+                                            color: Color(0xff33FFD3)),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )),
+                        ),
+                      if (winners.isEmpty)
+                        const SizedBox(
+                          height: 20,
+                        ),
                       IntrinsicWidth(
                         child: Column(
                           children: [
@@ -94,83 +126,83 @@ class _MyHomePageState extends State<MyHomePage> {
                                   ],
                                 ),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    nftMenuOpen
-                                        ? IconButton(
-                                            tooltip: "Cancel",
-                                            constraints: const BoxConstraints(),
-                                            padding: const EdgeInsets.all(0),
-                                            splashRadius: 28,
-                                            onPressed: () {
-                                              nftMenuOpen = !nftMenuOpen;
-                                              setState(() {});
-                                            },
-                                            icon: const Icon(Icons.cancel))
-                                        : const Icon(
-                                            Icons.cancel,
-                                            color: Colors.transparent,
-                                          ),
-                                    nftMenuOpen
-                                        ? InkWell(
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(15)),
-                                            onTap: () {
-                                              // close the menu
-                                              nftMenuOpen = !nftMenuOpen;
+                                    IconButton(
+                                        tooltip: "Add your ticket NFTs",
+                                        constraints: const BoxConstraints(),
+                                        padding: const EdgeInsets.all(0),
+                                        splashRadius: 28,
+                                        onPressed: () async {
+                                          await showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return Web3AlertDialog(
+                                                title: 'Add NFT Contract',
+                                                content: SizedBox(
+                                                  height: 99,
+                                                  child: NFTInputForm(
+                                                    chainIDController:
+                                                        chainIDController,
+                                                    contractAddressController:
+                                                        contractAddressController,
+                                                    tokenIDController:
+                                                        tokenIDController,
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      // get the nft information, then add it to the
+                                                      NFT submittedNFT = NFT(
+                                                          chain:
+                                                              chainIDController
+                                                                  .text,
+                                                          id: tokenIDController
+                                                              .text,
+                                                          address:
+                                                              contractAddressController
+                                                                  .text);
+                                                      // NFT? nft = await getNFT(
+                                                      //     submittedNFT,
+                                                      //     apiKeyController
+                                                      //         .text);
+                                                      // if (nft == null) {
+                                                      //   showToast(
+                                                      //       "NFT Not Found",
+                                                      //       context);
+                                                      // } else {
+                                                      //   Navigator.pop(
+                                                      //       context, true);
 
-                                              // add the NFT to the list
-                                              nfts.add(NFT(
-                                                  chain: chainIDController.text,
-                                                  id: tokenIDController.text,
-                                                  address:
+                                                      nfts.add(submittedNFT);
+
+                                                      // clear the text editing controllers
+                                                      chainIDController.clear();
                                                       contractAddressController
-                                                          .text));
+                                                          .clear();
+                                                      tokenIDController.clear();
 
-                                              // clear the text editing controllers
-                                              chainIDController.clear();
-                                              contractAddressController.clear();
-                                              tokenIDController.clear();
-
-                                              setState(() {});
+                                                      setState(() {});
+                                                      // }
+                                                    },
+                                                    child: const Text('Add'),
+                                                  ),
+                                                ],
+                                              );
                                             },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8.0,
-                                                      vertical: 1),
-                                              child: Text(
-                                                "Submit",
-                                                style: TextStyle(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary),
-                                              ),
-                                            ),
-                                          )
-                                        : IconButton(
-                                            tooltip: "Add your ticket NFTs",
-                                            constraints: const BoxConstraints(),
-                                            padding: const EdgeInsets.all(0),
-                                            splashRadius: 28,
-                                            onPressed: () {
-                                              nftMenuOpen = !nftMenuOpen;
-                                              setState(() {});
-                                            },
-                                            icon: Icon(nftMenuOpen
-                                                ? Icons.cancel
-                                                : Icons.add)),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.add)),
                                   ],
                                 )
                               ],
                             ),
                             Container(
                               width: 225,
-                              height: 100,
+                              height: 75,
                               constraints: const BoxConstraints(
-                                  minHeight: 100, maxHeight: 205),
+                                  minHeight: 75, maxHeight: 205),
                               decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(
                                       Radius.circular(5)),
@@ -178,57 +210,49 @@ class _MyHomePageState extends State<MyHomePage> {
                                       color:
                                           Theme.of(context).colorScheme.primary,
                                       width: 2)),
-                              child: nftMenuOpen
-                                  ? NFTInputForm(
-                                      chainIDController: chainIDController,
-                                      contractAddressController:
-                                          contractAddressController,
-                                      tokenIDController: tokenIDController,
-                                    )
-                                  : ListView.builder(
-                                      itemCount: nfts.length,
-                                      shrinkWrap: true,
-                                      itemExtent: 25,
-                                      itemBuilder: (context, idx) {
-                                        NFT nft = nfts[idx];
-                                        return Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 12),
-                                          child: Row(
-                                            children: [
-                                              Text("$idx. "),
-                                              Text(nft.chain),
-                                              const Text("  "),
-                                              Text(formatAddress(nft.address)),
-                                              const Text("    "),
-                                              InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    if (idx >= 0 &&
-                                                        idx < nfts.length) {
-                                                      nfts.removeAt(idx);
-                                                      print(
-                                                          "Element at index $idx removed. Updated list: $nfts");
-                                                    } else {
-                                                      print(
-                                                          "Index $idx is out of bounds.");
-                                                    }
-                                                    print(nfts);
-                                                  });
-                                                },
-                                                child: Icon(
-                                                  Icons.delete,
-                                                  size: 20,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                ),
-                                              )
-                                            ],
+                              child: ListView.builder(
+                                itemCount: nfts.length,
+                                shrinkWrap: true,
+                                itemExtent: 25,
+                                itemBuilder: (context, idx) {
+                                  NFT nft = nfts[idx];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 12),
+                                    child: Row(
+                                      children: [
+                                        Text("$idx. "),
+                                        Text(nft.chain),
+                                        const Text("  "),
+                                        Text(formatAddress(nft.address)),
+                                        const Text("    "),
+                                        InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              if (idx >= 0 &&
+                                                  idx < nfts.length) {
+                                                nfts.removeAt(idx);
+                                                print(
+                                                    "Element at index $idx removed. Updated list: $nfts");
+                                              } else {
+                                                print(
+                                                    "Index $idx is out of bounds.");
+                                              }
+                                              print(nfts);
+                                            });
+                                          },
+                                          child: Icon(
+                                            Icons.delete,
+                                            size: 20,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
                                           ),
-                                        );
-                                      },
+                                        )
+                                      ],
                                     ),
+                                  );
+                                },
+                              ),
                             ),
                           ],
                         ),
@@ -240,6 +264,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         onPressed: () {
                           winningTicket = drawTicket(
                               shuffledTix ? shuffledTickets : ticketsDict);
+                          // add winner address to winners owner's list
+                          Owner winningTicketOwner = owners
+                              .where((element) =>
+                                  element.address == winningTicket!.value)
+                              .toList()
+                              .first;
+                          winners.add(winningTicketOwner);
                           setState(() {});
                         },
                         child: const Text("DRAW THE WINNING TICKET"),
@@ -256,12 +287,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           children: [
                             Text(
                               "Ticket #: ${winningTicket!.key}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Color(0xff33FFD3), fontSize: 20),
                             ),
                             Text(
                               "Owner Address: ${winningTicket!.value}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Color(0xff33FFD3), fontSize: 20),
                             ),
                           ],
@@ -280,38 +311,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               ElevatedButton(
                                 onPressed: () async {
                                   if (apiKeyController.text.isEmpty) {
-                                    Fluttertoast.showToast(
-                                        msg: "Input your OpenSea API",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.TOP,
-                                        timeInSecForIosWeb: 3,
-                                        webShowClose: true,
-                                        webPosition: "right",
-                                        webBgColor:
-                                            "linear-gradient(to right, #33FFD3, #33FFD3)",
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .background,
-                                        textColor: const Color.fromARGB(
-                                            255, 32, 32, 32),
-                                        fontSize: 14.0);
+                                    showToast(
+                                        "Input your OpenSea API", context);
                                   }
                                   if (nfts.isEmpty) {
-                                    Fluttertoast.showToast(
-                                        msg: "Add your NFT",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.TOP,
-                                        timeInSecForIosWeb: 3,
-                                        webShowClose: true,
-                                        webPosition: "right",
-                                        webBgColor:
-                                            "linear-gradient(to right, #33FFD3, #33FFD3)",
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .background,
-                                        textColor: const Color.fromARGB(
-                                            255, 32, 32, 32),
-                                        fontSize: 14.0);
+                                    showToast("Add your NFT", context);
                                   }
                                   if (!fetchedOwnersList &&
                                       apiKeyController.text.isNotEmpty) {
@@ -329,7 +333,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     });
                                   }
                                 },
-                                child: const Text("Get Raffle Tix!!!"),
+                                child: const Text("Get Owners!!!"),
                               ),
                               const SizedBox(
                                 height: 8,

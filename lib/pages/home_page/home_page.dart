@@ -1,4 +1,6 @@
 import 'package:Raffler/pages/home_page/widgets/alert_dialog.dart';
+import 'package:Raffler/pages/owners/owners_page.dart';
+import 'package:Raffler/pages/tickets/tickets_page.dart';
 import 'package:Raffler/services/url_launch.dart';
 import 'package:Raffler/shared/toast.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +35,57 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController contractAddressController = TextEditingController();
   TextEditingController tokenIDController = TextEditingController();
   final TextEditingController apiKeyController = TextEditingController();
+
+  ValueNotifier<int> pageIdx = ValueNotifier(0);
+
+  getPage(int idx) {
+    switch (idx) {
+      case 0:
+        return OwnersPage(
+          apiKeyController: apiKeyController,
+          nfts: nfts,
+          owners: owners,
+          ticketsDict: ticketsDict,
+          onGetOwners: () async {
+            if (apiKeyController.text.isEmpty) {
+              showToast("Input your OpenSea API Key", context);
+            }
+            if (nfts.isEmpty) {
+              showToast("Add your NFT", context);
+            }
+            if (!fetchedOwnersList && apiKeyController.text.isNotEmpty) {
+              List<Owner>? response =
+                  await fetchNFTHolders(nfts, apiKeyController.text);
+              if (response != null) {
+                fetchedOwnersList = true;
+                owners = response;
+                ticketsDict = buildTixDict(owners); // build the tix dict
+              }
+              setState(() {
+                tixWidgetKey++;
+              });
+            }
+          },
+        );
+      case 1:
+        return TicketsPage(
+          key: Key("$tixWidgetKey"),
+          ticketsDict: shuffledTix ? shuffledTickets : ticketsDict,
+          onTicketShuffle: () {
+            shuffledTickets = shuffleTix(ticketsDict);
+            setState(() {
+              tixWidgetKey++;
+              shuffledTix = true;
+            });
+          },
+        );
+      case 2:
+        return Container();
+      // return WinnerPage();
+      default:
+      // return OwnersPage();
+    }
+  }
 
   @override
   void initState() {
@@ -353,126 +406,70 @@ class _MyHomePageState extends State<MyHomePage> {
                         height: 15,
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () async {
-                                  if (apiKeyController.text.isEmpty) {
-                                    showToast(
-                                        "Input your OpenSea API Key", context);
-                                  }
-                                  if (nfts.isEmpty) {
-                                    showToast("Add your NFT", context);
-                                  }
-                                  if (!fetchedOwnersList &&
-                                      apiKeyController.text.isNotEmpty) {
-                                    List<Owner>? response =
-                                        await fetchNFTHolders(
-                                            nfts, apiKeyController.text);
-                                    if (response != null) {
-                                      fetchedOwnersList = true;
-                                      owners = response;
-                                      ticketsDict = buildTixDict(
-                                          owners); // build the tix dict
-                                    }
-                                    setState(() {
-                                      tixWidgetKey++;
-                                    });
-                                  }
-                                },
-                                child: const Text("Get Owners!!!"),
-                              ),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              SizedBox(
-                                // height: 500,
-                                width: 210,
-                                child: ListView.builder(
-                                  itemCount: owners.length,
-                                  shrinkWrap: true,
-                                  itemExtent: 35,
-                                  itemBuilder: (context, idx) {
-                                    return InkWell(
-                                      onTap: null,
-                                      //  () {
-                                      // print(
-                                      //     "see owner ${owners[idx].address}");
-                                      // },
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 14),
-                                        child: Row(
-                                          children: [
-                                            Text(formatAddress(
-                                                owners[idx].address)),
-                                            Text(
-                                                "   Tix: ${owners[idx].quantity}   "),
-                                            if (ticketsDict.isNotEmpty)
-                                              Text(
-                                                  "${(owners[idx].quantity / ticketsDict.length * 100).toStringAsFixed(1)}%")
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
+                          InkWell(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(14)),
+                            onTap: () => {
+                              pageIdx.value = 0,
+                              pageIdx.notifyListeners(),
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
+                              child: Text("Owners"),
+                            ),
                           ),
-                          const SizedBox(
-                            width: 45,
+                          InkWell(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(14)),
+                            onTap: () => {
+                              pageIdx.value = 1,
+                              pageIdx.notifyListeners(),
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
+                              child: Text("Tickets"),
+                            ),
                           ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () async {
-                                  print("shuffle the tickets");
-                                  shuffledTickets = shuffleTix(ticketsDict);
-                                  setState(() {
-                                    tixWidgetKey++;
-                                    shuffledTix = true;
-                                  });
-                                },
-                                child: const Text("Shuffle!"),
-                              ),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              const Text("Tickets"),
-                              SizedBox(
-                                key: Key("$tixWidgetKey"),
-                                width: 180,
-                                child: ListView.builder(
-                                  itemCount: shuffledTix
-                                      ? shuffledTickets.length
-                                      : ticketsDict.length,
-                                  shrinkWrap: true,
-                                  itemExtent: 28,
-                                  itemBuilder: (context, idx) {
-                                    Map<int, String> tixDict = shuffledTix
-                                        ? shuffledTickets
-                                        : ticketsDict;
-                                    int ticketNum = tixDict.keys.toList()[idx];
-                                    String ownerAddress = tixDict[ticketNum]!;
-                                    return Padding(
-                                      padding: const EdgeInsets.only(right: 14),
-                                      child: Text(
-                                          "$ticketNum:   ${formatAddress(ownerAddress)}"),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
+                          InkWell(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(14)),
+                            onTap: () => {
+                              pageIdx.value = 2,
+                              pageIdx.notifyListeners(),
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
+                              child: Text("Winners"),
+                            ),
                           ),
                         ],
                       ),
+                      const SizedBox(
+                        height: 4,
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        constraints: const BoxConstraints(maxWidth: 300),
+                        child: Divider(
+                          thickness: 2,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      ValueListenableBuilder(
+                          valueListenable: pageIdx,
+                          builder: (ctx, pgIdx, __) {
+                            return ConstrainedBox(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 650),
+                                child: getPage(pgIdx));
+                          }),
                       const SizedBox(
                         height: 15,
                       ),

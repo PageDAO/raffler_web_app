@@ -18,6 +18,6 @@ l:
 
 c:
 	curl -X GET "https://api.opensea.io/api/v2/chain/optimism" \
-	-H  "X-API-KEY: 02ffbeef6f9b442db661800b65549122" \
+	-H  "X-API-KEY: <insert_api_key" \
 	-H  "Content-Type: application/json" \
 	

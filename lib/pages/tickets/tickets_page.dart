@@ -14,6 +14,8 @@ class TicketsPage extends StatefulWidget {
 class _TicketsPageState extends State<TicketsPage> {
   int tixWidgetKey = 0;
 
+  TextStyle green = const TextStyle(color: Color(0xff33FFD3));
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -27,7 +29,7 @@ class _TicketsPageState extends State<TicketsPage> {
               tixWidgetKey++;
             });
           },
-          child: const Text("Shuffle!"),
+          child: const Text(" Shuffle!"),
         ),
         const SizedBox(
           height: 8,
@@ -46,9 +48,13 @@ class _TicketsPageState extends State<TicketsPage> {
                   Map<int, String> tixDict = widget.ticketsDict;
                   int ticketNum = tixDict.keys.toList()[idx];
                   String ownerAddress = tixDict[ticketNum]!;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 14),
-                    child: Text("$ticketNum:   ${formatAddress(ownerAddress)}"),
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 0),
+                      child: Text(
+                          "$ticketNum:   ${formatAddress(ownerAddress)}",
+                          style: green),
+                    ),
                   );
                 },
               ),

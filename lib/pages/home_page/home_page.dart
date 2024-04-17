@@ -1,10 +1,10 @@
 import 'package:Raffler/pages/home_page/widgets/alert_dialog.dart';
 import 'package:Raffler/pages/owners/owners_page.dart';
 import 'package:Raffler/pages/tickets/tickets_page.dart';
+import 'package:Raffler/pages/winners/winners_page.dart';
 import 'package:Raffler/services/url_launch.dart';
 import 'package:Raffler/shared/toast.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:Raffler/models/NFTContract.dart';
 import 'package:Raffler/models/owner.dart';
 import 'package:Raffler/pages/home_page/widgets/nft_input_form.dart';
@@ -27,6 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Map<int, String> ticketsDict = {};
   Map<int, String> shuffledTickets = {};
   int tixWidgetKey = 1;
+  int winnersWidgetKey = 1;
   MapEntry<int, String>? winningTicket;
   List<NFT> nfts = [];
   List<Owner> winners = [];
@@ -80,8 +81,10 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         );
       case 2:
-        return Container();
-      // return WinnerPage();
+        return WinnersPage(
+          key: Key("$winnersWidgetKey"),
+          winnersList: winners,
+        );
       default:
       // return OwnersPage();
     }
@@ -135,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       const SizedBox(
-                        height: 25,
+                        height: 18,
                       ),
                       if (winners.isNotEmpty)
                         SizedBox(
@@ -166,8 +169,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       if (winners.isEmpty)
                         const SizedBox(
-                          height: 20,
+                          height: 28,
                         ),
+                      const SizedBox(
+                        height: 8,
+                      ),
                       IntrinsicWidth(
                         child: Column(
                           children: [
@@ -376,7 +382,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               .toList()
                               .first;
                           winners.add(winningTicketOwner);
-                          setState(() {});
+                          setState(() {
+                            winnersWidgetKey++;
+                          });
                         },
                         child: const Text("DRAW THE WINNING TICKET"),
                       ),
@@ -420,6 +428,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Text("Owners"),
                             ),
                           ),
+                          const SizedBox(
+                            width: 20,
+                          ),
                           InkWell(
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(14)),
@@ -432,6 +443,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                   const EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
                               child: Text("Tickets"),
                             ),
+                          ),
+                          const SizedBox(
+                            width: 20,
                           ),
                           InkWell(
                             borderRadius:

@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'The Raffler',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(useMaterial3: true),
-      home: const MyHomePage(title: 'NFT Ticket Raffle'),
+      home: const MyHomePage(title: 'The Raffler'),
     );
   }
 }

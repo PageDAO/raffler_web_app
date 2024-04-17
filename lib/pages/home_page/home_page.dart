@@ -118,18 +118,22 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 const BorderRadius.all(
                                                     Radius.circular(15)),
                                             onTap: () {
+                                              // close the menu
                                               nftMenuOpen = !nftMenuOpen;
+
+                                              // add the NFT to the list
                                               nfts.add(NFT(
                                                   chain: chainIDController.text,
                                                   id: tokenIDController.text,
                                                   address:
                                                       contractAddressController
                                                           .text));
-                                              // widget.onSubmit(NFT(
-                                              //     chain: "optimism",
-                                              //     id: "1",
-                                              //     address:
-                                              //         '0x464c77eea43f403b9548b61a2ac749cae954c21b'));
+
+                                              // clear the text editing controllers
+                                              chainIDController.clear();
+                                              contractAddressController.clear();
+                                              tokenIDController.clear();
+
                                               setState(() {});
                                             },
                                             child: Padding(
@@ -250,8 +254,16 @@ class _MyHomePageState extends State<MyHomePage> {
                       if (winningTicket != null)
                         Column(
                           children: [
-                            Text("Ticket #: ${winningTicket!.key}"),
-                            Text("Owner Address: ${winningTicket!.value}"),
+                            Text(
+                              "Ticket #: ${winningTicket!.key}",
+                              style: TextStyle(
+                                  color: Color(0xff33FFD3), fontSize: 20),
+                            ),
+                            Text(
+                              "Owner Address: ${winningTicket!.value}",
+                              style: TextStyle(
+                                  color: Color(0xff33FFD3), fontSize: 20),
+                            ),
                           ],
                         ),
                       const SizedBox(
@@ -331,10 +343,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   itemExtent: 35,
                                   itemBuilder: (context, idx) {
                                     return InkWell(
-                                      onTap: () {
-                                        print(
-                                            "see owner ${owners[idx].address}");
-                                      },
+                                      onTap: null,
+                                      //  () {
+                                      // print(
+                                      //     "see owner ${owners[idx].address}");
+                                      // },
                                       child: Padding(
                                         padding:
                                             const EdgeInsets.only(right: 14),

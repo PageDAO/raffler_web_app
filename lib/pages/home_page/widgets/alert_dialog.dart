@@ -19,7 +19,8 @@ class Web3AlertDialog extends StatelessWidget {
         title,
         style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
       ),
-      content: content,
+      content: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 300), child: content),
       actions: actions,
       backgroundColor: Theme.of(context).colorScheme.background,
       elevation: 24.0,

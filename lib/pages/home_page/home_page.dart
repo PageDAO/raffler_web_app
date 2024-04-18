@@ -1,3 +1,4 @@
+import 'package:Raffler/models/platform.dart';
 import 'package:Raffler/pages/home_page/widgets/alert_dialog.dart';
 import 'package:Raffler/pages/owners/owners_page.dart';
 import 'package:Raffler/pages/tickets/tickets_page.dart';
@@ -37,6 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController tokenIDController = TextEditingController();
   final TextEditingController apiKeyController = TextEditingController();
 
+  APIOption selectedPlatform = APIOption.airStack;
+
   ValueNotifier<int> pageIdx = ValueNotifier(0);
 
   getPage(int idx) {
@@ -48,15 +51,11 @@ class _MyHomePageState extends State<MyHomePage> {
           owners: owners,
           ticketsDict: ticketsDict,
           onGetOwners: () async {
-            if (apiKeyController.text.isEmpty) {
-              showToast("Input your OpenSea API Key", context);
-            }
             if (nfts.isEmpty) {
               showToast("Add your NFT", context);
             }
-            if (!fetchedOwnersList && apiKeyController.text.isNotEmpty) {
-              List<Owner>? response =
-                  await fetchNFTHolders(nfts, apiKeyController.text);
+            if (!fetchedOwnersList) {
+              List<Owner>? response = await getHolders(nfts);
               if (response != null) {
                 fetchedOwnersList = true;
                 owners = response;
@@ -99,30 +98,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        centerTitle: true,
-        title: Text(widget.title),
-        actions: [
-          SizedBox(
-            width: 165,
-            height: 36,
-            child: TextFormField(
-              controller: apiKeyController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                  labelText: '  OpenSea API Key',
-                  border: OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                  labelStyle: TextStyle(fontSize: 14)),
-            ),
-          ),
-          const SizedBox(
-            width: 12,
-          )
-        ],
-      ),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          centerTitle: true,
+          title: Text(widget.title)),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0),
         child: SelectionArea(
@@ -194,21 +172,36 @@ class _MyHomePageState extends State<MyHomePage> {
                                         padding: const EdgeInsets.all(0),
                                         splashRadius: 28,
                                         onPressed: () async {
-                                          if (apiKeyController.text.isEmpty) {
-                                            showToast(
-                                                "Input your OpenSea API Key",
-                                                context);
-                                          }
-                                          if (apiKeyController
-                                              .text.isNotEmpty) {
-                                            await showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return Web3AlertDialog(
+                                          // if (apiKeyController.text.isEmpty) {
+                                          //   showToast(
+                                          //       "Input your OpenSea API Key",
+                                          //       context);
+                                          // }
+                                          // if (apiKeyController
+                                          //     .text.isNotEmpty) {
+                                          await showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return ConstrainedBox(
+                                                constraints:
+                                                    const BoxConstraints(
+                                                        maxWidth: 400),
+                                                child: Web3AlertDialog(
                                                   title: 'Add NFT Contract',
                                                   content: SizedBox(
-                                                    height: 99,
+                                                    height: 210,
                                                     child: NFTInputForm(
+                                                      onPlatformSelect:
+                                                          (APIOption newValue) {
+                                                        setState(() {
+                                                          selectedPlatform =
+                                                              newValue;
+                                                        });
+                                                      },
+                                                      apiKeyController:
+                                                          apiKeyController,
+                                                      intiSelectedPlatform:
+                                                          selectedPlatform,
                                                       chainIDController:
                                                           chainIDController,
                                                       contractAddressController:
@@ -222,8 +215,31 @@ class _MyHomePageState extends State<MyHomePage> {
                                                       onPressed: () async {
                                                         // get the nft information, then add it to the
                                                         if (apiKeyController
+                                                            .text.isEmpty) {
+                                                          showToast(
+                                                              "Input API Key",
+                                                              context);
+                                                        }
+                                                        if (chainIDController
+                                                            .text.isEmpty) {
+                                                          showToast(
+                                                              "Select Chain",
+                                                              context);
+                                                        }
+                                                        if (contractAddressController
+                                                            .text.isEmpty) {
+                                                          showToast(
+                                                              "Add Contract Address",
+                                                              context);
+                                                        }
+                                                        if (apiKeyController
                                                             .text.isNotEmpty) {
                                                           NFT submittedNFT = NFT(
+                                                              apiKey:
+                                                                  apiKeyController
+                                                                      .text,
+                                                              apiOption:
+                                                                  selectedPlatform,
                                                               chain:
                                                                   chainIDController
                                                                       .text,
@@ -234,6 +250,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                                       .text);
                                                           NFT? nft = await getNFT(
                                                               submittedNFT,
+                                                              selectedPlatform,
                                                               apiKeyController
                                                                   .text);
                                                           if (nft == null) {
@@ -247,6 +264,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                                             nfts.add(nft);
 
                                                             // clear the text editing controllers
+                                                            apiKeyController
+                                                                .clear();
                                                             chainIDController
                                                                 .clear();
                                                             contractAddressController
@@ -261,10 +280,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                                       child: const Text('Add'),
                                                     ),
                                                   ],
-                                                );
-                                              },
-                                            );
-                                          }
+                                                ),
+                                              );
+                                            },
+                                          );
+                                          // }
                                         },
                                         icon: const Icon(Icons.add)),
                                   ],
@@ -422,9 +442,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               pageIdx.value = 0,
                               pageIdx.notifyListeners(),
                             },
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
+                            child: const Padding(
+                              padding: EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
                               child: Text("Owners"),
                             ),
                           ),
@@ -438,9 +457,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               pageIdx.value = 1,
                               pageIdx.notifyListeners(),
                             },
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
+                            child: const Padding(
+                              padding: EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
                               child: Text("Tickets"),
                             ),
                           ),
@@ -454,9 +472,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               pageIdx.value = 2,
                               pageIdx.notifyListeners(),
                             },
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
+                            child: const Padding(
+                              padding: EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
                               child: Text("Winners"),
                             ),
                           ),

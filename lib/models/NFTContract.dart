@@ -1,4 +1,8 @@
+import 'package:Raffler/models/platform.dart';
+
 class NFT {
+  final APIOption apiOption;
+  final String apiKey;
   final String chain;
   final String id;
   final String address;
@@ -12,7 +16,9 @@ class NFT {
   final bool isNSFW;
 
   NFT(
-      {required this.chain,
+      {required this.apiOption,
+      required this.apiKey,
+      required this.chain,
       required this.id,
       required this.address,
       this.tokenStandard,

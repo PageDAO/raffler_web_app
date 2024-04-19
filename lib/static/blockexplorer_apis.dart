@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:Raffler/models/NFTContract.dart';
 import 'package:Raffler/models/owner.dart';
 import 'package:Raffler/models/platform.dart';
+import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -68,14 +70,51 @@ class Api {
         Map<String, dynamic>? response =
             await makeOpenSeaRequest(nftUri, apiKey);
         return response;
-      } else if (airstackChains.contains(nft.chain)) {
+      } else {
+        throw ArgumentError('Unsupported chain: ${nft.chain}');
+      }
+    } else if (apiOption == APIOption.airStack) {
+      if (airstackChains.contains(nft.chain)) {
+        String uri = 'https://api.airstack.xyz/graphql';
+        String contractAddress = "0x8941F686BaADEe7bf5207a3aaC5974D21c462849";
+        String jsonString =
+            '{"query":"query MyQuery { TokenNfts ( input: { filter: { tokenId: {_eq: ${1}}, address: {_eq: $contractAddress}, blockchain: ${nft.chain}}) { TokenNft { tokenId address}}"}';
+        final response = await http.post(Uri.parse(uri),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'bearer <airstack token>'
+            },
+            body: jsonString);
+        print(response.body);
         //   curl -X POST \
         // --url 'https://api.airstack.xyz/graphql' \
         // -H "Content-Type: application/json" \
         // --header 'Authorization: bearer 1756e62c0f0b643f1a6537459fccf70f2' \
         // -d '{"query":"query MyQuery {\n  TokenNfts(input: {filter: {tokenId: {_eq: \"1\"}, address: {_eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\"}}, blockchain: degen}) {\n    TokenNft {\n      tokenId\n      address\n      token {\n        address\n        baseURI\n        name\n        logo {\n          small\n          large\n        }\n        totalSupply\n        owner {\n          addresses\n        }\n        chainId\n        blockchain\n        lastTransferBlock\n      }\n    }\n  }\n}"}' \
-      } else {
-        throw ArgumentError('Unsupported chain: ${nft.chain}');
+
+        // USING THE GRAPHQL METHOD
+
+        // await initHiveForFlutter();
+
+        // final HttpLink httpLink = HttpLink(
+        //   'https://api.airstack.xyz/graphql',
+        // );
+
+        // final AuthLink authLink = AuthLink(
+        //   getToken: () async => 'Bearer 1756e62c0f0b643f1a6537459fccf70f2',
+        //   // OR
+        //   // getToken: () => 'Bearer <YOUR_PERSONAL_ACCESS_TOKEN>',
+        // );
+
+        // final Link link = authLink.concat(httpLink);
+
+        // ValueNotifier<GraphQLClient> client = ValueNotifier(
+        //   GraphQLClient(
+        //     link: link,
+        //     // The default store is the InMemoryStore, which does NOT persist to disk
+        //     cache: GraphQLCache(store: HiveStore()),
+        //   ),
+        // );
       }
     }
   }

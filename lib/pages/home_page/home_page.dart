@@ -1,5 +1,6 @@
 import 'package:Raffler/models/platform.dart';
 import 'package:Raffler/pages/home_page/widgets/alert_dialog.dart';
+import 'package:Raffler/pages/mint/mint_page.dart';
 import 'package:Raffler/pages/owners/owners_page.dart';
 import 'package:Raffler/pages/tickets/tickets_page.dart';
 import 'package:Raffler/pages/winners/winners_page.dart';
@@ -84,6 +85,11 @@ class _MyHomePageState extends State<MyHomePage> {
           key: Key("$winnersWidgetKey"),
           winnersList: winners,
         );
+      case 3:
+        return MintPage(
+          key: Key("$winnersWidgetKey"),
+        );
+
       default:
       // return OwnersPage();
     }
@@ -435,6 +441,24 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Row(
                         children: [
+                          InkWell(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(14)),
+                            onTap: () => {
+                              pageIdx.value = 3,
+                              pageIdx.notifyListeners(),
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
+                              child: Text(
+                                "Mint",
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
                           InkWell(
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(14)),

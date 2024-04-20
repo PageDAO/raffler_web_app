@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:Raffler/models/NFTContract.dart';
 import 'package:Raffler/models/owner.dart';
 import 'package:Raffler/models/platform.dart';
-import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -75,14 +73,15 @@ class Api {
       }
     } else if (apiOption == APIOption.airStack) {
       if (airstackChains.contains(nft.chain)) {
+        print("here");
         String uri = 'https://api.airstack.xyz/graphql';
         String contractAddress = "0x8941F686BaADEe7bf5207a3aaC5974D21c462849";
         String jsonString =
-            '{"query":"query MyQuery { TokenNfts ( input: { filter: { tokenId: {_eq: ${1}}, address: {_eq: $contractAddress}, blockchain: ${nft.chain}}) { TokenNft { tokenId address}}"}';
+            '{ "query" : "query MyQuery { TokenNfts ( input: { filter: { tokenId: ${1}, address: $contractAddress}}, blockchain: ${nft.chain}}) { TokenNft { tokenId address }}"}';
         final response = await http.post(Uri.parse(uri),
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'bearer <airstack token>'
+              'Authorization': 'bearer 1756e62c0f0b643f1a6537459fccf70f2'
             },
             body: jsonString);
         print(response.body);
@@ -119,6 +118,14 @@ class Api {
     }
   }
 
+// query MyQuery
+// { TokenNfts (
+//   input:
+//   { filter:
+//   { tokenId: ${1}, address: $contractAddress}
+//   }, blockchain: ${nft.chain}
+//   )}
+//   { TokenNft { tokenId address }}"}
   Future<NFT?> convertResponseToNFT(
       NFT nft, APIOption apiOption, Map<String, dynamic> response) async {
     Map<dynamic, dynamic>? _nft;

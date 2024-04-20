@@ -5,6 +5,9 @@ clean:
 deploy:
 	firebase deploy
 
+local:
+	firebase serve --only hosting
+
 t:
 	curl -X GET "https://api.opensea.io/api/v2/chain/optimism/contract/0x464c77eea43f403b9548b61a2ac749cae954c21b/nfts/1" \
 	-H  "X-API-KEY: <insert_api_key" \
@@ -37,7 +40,7 @@ d:
 t:
 	curl --request POST \
 		--url 'https://api.airstack.xyz/graphql' \
-		--header 'Authorization: bearer <airstack token>' \
+		--header 'Authorization: bearer 1756e62c0f0b643f1a6537459fccf70f2' \
 		-H "Content-Type: application/json" \
 		-d '{"query":"query MyQuery {\n  TokenBalances(\n    input: {\n      filter: {\n        tokenAddress: { _eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\" }\n        tokenId: { _eq: \"1\" }\n      }\n      blockchain: degen\n    }\n  ) {\n    TokenBalance {\n      owner {\n        addresses\n        domains {\n          name\n          isPrimary\n        }\n        socials {\n          dappName\n          profileName\n          userAssociatedAddresses\n        }\n        xmtp {\n          isXMTPEnabled\n        }\n      }\n    }\n  }\n}"}' \
 
@@ -46,9 +49,17 @@ nft:
 	curl -X POST \
 		--url 'https://api.airstack.xyz/graphql' \
 		-H "Content-Type: application/json" \
-		--header 'Authorization: bearer ' \
+		--header 'Authorization: bearer 1756e62c0f0b643f1a6537459fccf70f2' \
 		-d '{"query":"query MyQuery { TokenNfts(input: {filter: {tokenId: {_eq: \"1\"}, address: {_eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\"}}, blockchain: degen}) { TokenNft {tokenId address token {address baseURI name logo { small large} totalSupply owner { addresses } chainId blockchain lastTransferBlock }}}}"}' \
 
+
+# TokenNfts
+# (input: {filter: 
+# {
+# 	tokenId: {_eq: \"1\"}, 
+# 	address: {_eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\"}
+# }, 
+# blockchain: degen})
 # query getFields($entity:String,$show_hidden:Boolean) {
 #   getFields(entity:$entity,show_hidden:$show_hidden){
 #     id

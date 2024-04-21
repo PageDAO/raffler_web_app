@@ -73,59 +73,27 @@ class Api {
       }
     } else if (apiOption == APIOption.airStack) {
       if (airstackChains.contains(nft.chain)) {
-        print("here");
         String uri = 'https://api.airstack.xyz/graphql';
-        String contractAddress = "0x8941F686BaADEe7bf5207a3aaC5974D21c462849";
-        String jsonString =
-            '{ "query" : "query MyQuery { TokenNfts ( input: { filter: { tokenId: ${1}, address: $contractAddress}}, blockchain: ${nft.chain}}) { TokenNft { tokenId address }}"}';
+
+        String jsonString = jsonEncode({
+          "query":
+              "query MyQuery {TokenNfts(input: {filter: {tokenId: {_eq: \"${nft.id}\"}, address: {_eq: \"${nft.address}\"}}, blockchain: ${nft.chain}}) {TokenNft {tokenId address token {address baseURI name logo { small large} totalSupply owner { addresses } chainId blockchain lastTransferBlock }}}}",
+        });
+
         final response = await http.post(Uri.parse(uri),
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'bearer 1756e62c0f0b643f1a6537459fccf70f2'
+              'Authorization': 'Bearer ${nft.apiKey}'
             },
             body: jsonString);
-        print(response.body);
-        //   curl -X POST \
-        // --url 'https://api.airstack.xyz/graphql' \
-        // -H "Content-Type: application/json" \
-        // --header 'Authorization: bearer 1756e62c0f0b643f1a6537459fccf70f2' \
-        // -d '{"query":"query MyQuery {\n  TokenNfts(input: {filter: {tokenId: {_eq: \"1\"}, address: {_eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\"}}, blockchain: degen}) {\n    TokenNft {\n      tokenId\n      address\n      token {\n        address\n        baseURI\n        name\n        logo {\n          small\n          large\n        }\n        totalSupply\n        owner {\n          addresses\n        }\n        chainId\n        blockchain\n        lastTransferBlock\n      }\n    }\n  }\n}"}' \
-
-        // USING THE GRAPHQL METHOD
-
-        // await initHiveForFlutter();
-
-        // final HttpLink httpLink = HttpLink(
-        //   'https://api.airstack.xyz/graphql',
-        // );
-
-        // final AuthLink authLink = AuthLink(
-        //   getToken: () async => 'Bearer 1756e62c0f0b643f1a6537459fccf70f2',
-        //   // OR
-        //   // getToken: () => 'Bearer <YOUR_PERSONAL_ACCESS_TOKEN>',
-        // );
-
-        // final Link link = authLink.concat(httpLink);
-
-        // ValueNotifier<GraphQLClient> client = ValueNotifier(
-        //   GraphQLClient(
-        //     link: link,
-        //     // The default store is the InMemoryStore, which does NOT persist to disk
-        //     cache: GraphQLCache(store: HiveStore()),
-        //   ),
-        // );
+        var responseBody = response.body;
+        Map<String, dynamic> nftResponse = json.decode(responseBody);
+        // RETURN MORE NFT INFORMATION
+        return nftResponse;
       }
     }
   }
 
-// query MyQuery
-// { TokenNfts (
-//   input:
-//   { filter:
-//   { tokenId: ${1}, address: $contractAddress}
-//   }, blockchain: ${nft.chain}
-//   )}
-//   { TokenNft { tokenId address }}"}
   Future<NFT?> convertResponseToNFT(
       NFT nft, APIOption apiOption, Map<String, dynamic> response) async {
     Map<dynamic, dynamic>? _nft;
@@ -155,12 +123,20 @@ class Api {
       } else {
         throw ArgumentError("Chain not available on OpenSea");
       }
-    } else if (airstackChains.contains(nft.chain)) {
-      //   curl -X POST \
-      // --url 'https://api.airstack.xyz/graphql' \
-      // -H "Content-Type: application/json" \
-      // --header 'Authorization: bearer 1756e62c0f0b643f1a6537459fccf70f2' \
-      // -d '{"query":"query MyQuery {\n  TokenNfts(input: {filter: {tokenId: {_eq: \"1\"}, address: {_eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\"}}, blockchain: degen}) {\n    TokenNft {\n      tokenId\n      address\n      token {\n        address\n        baseURI\n        name\n        logo {\n          small\n          large\n        }\n        totalSupply\n        owner {\n          addresses\n        }\n        chainId\n        blockchain\n        lastTransferBlock\n      }\n    }\n  }\n}"}' \
+    } else if (apiOption == APIOption.airStack) {
+      _nft = response['data']['TokenNfts']['TokenNft'].first;
+
+      NFT responseNFT = NFT(
+        apiOption: apiOption,
+        apiKey: nft.apiKey,
+        address: _nft!['address'],
+        chain: nft.chain,
+        id: nft.id.isEmpty ? _nft['tokenId'] : nft.id,
+        name: _nft['token']['name'],
+        totalSupply: int.parse(_nft['token']['totalSupply']),
+        imageUrl: _nft['token']['logo']['small'],
+      );
+      return responseNFT;
     } else {
       throw ArgumentError('Unsupported chain: ${nft.chain}');
     }
@@ -177,14 +153,52 @@ class Api {
         Map<String, dynamic>? response =
             await makeOpenSeaRequest(nftUri, nft.apiKey);
         return response;
-      } else if (airstackChains.contains(nft.chain)) {
-        //   curl -X POST \
-        // --url 'https://api.airstack.xyz/graphql' \
-        // -H "Content-Type: application/json" \
-        // --header 'Authorization: bearer 1756e62c0f0b643f1a6537459fccf70f2' \
-        // -d '{"query":"query MyQuery {\n  TokenNfts(input: {filter: {tokenId: {_eq: \"1\"}, address: {_eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\"}}, blockchain: degen}) {\n    TokenNft {\n      tokenId\n      address\n      token {\n        address\n        baseURI\n        name\n        logo {\n          small\n          large\n        }\n        totalSupply\n        owner {\n          addresses\n        }\n        chainId\n        blockchain\n        lastTransferBlock\n      }\n    }\n  }\n}"}' \
       } else {
         throw ArgumentError('Unsupported chain: ${nft.chain}');
+      }
+    } else if (airstackChains.contains(nft.chain)) {
+      if (nft.apiOption == APIOption.airStack) {
+        // get the total supply
+
+        int totalSupply = nft.totalSupply ?? 200;
+
+        int batchSize = 200;
+
+        String uri = 'https://api.airstack.xyz/graphql';
+
+        Map<String, dynamic> allResponses = {};
+
+        for (int i = 1; i < totalSupply; i += batchSize) {
+          int start = i;
+          int end =
+              (i + batchSize <= totalSupply) ? i + batchSize : totalSupply;
+
+          // print('Fetching items from $start to $end');
+
+          // Your fetching logic here
+          String jsonString = jsonEncode({
+            "query":
+                "query MyQuery { TokenBalances(input: {filter: {tokenAddress: { _in: \"${nft.address}\" }, tokenId: {_gte: \"$start\", _lte: \"$end\",}} blockchain: ${nft.chain} limit: 200}) {TokenBalance { tokenId owner {addresses}}}}",
+          });
+
+          final response = await http.post(Uri.parse(uri),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ${nft.apiKey}'
+              },
+              body: jsonString);
+          var responseBody = response.body;
+
+          if (allResponses.isEmpty) {
+            allResponses = json.decode(responseBody);
+          } else {
+            // add the results into the totals dictionary
+            Map<String, dynamic> nftResponse = json.decode(responseBody);
+            allResponses['data']['TokenBalances']["TokenBalance"]
+                .addAll(nftResponse['data']['TokenBalances']["TokenBalance"]);
+          }
+        }
+        return allResponses;
       }
     }
   }
@@ -204,12 +218,34 @@ class Api {
       } else {
         throw ArgumentError("Chain not available on OpenSea");
       }
-    } else if (airstackChains.contains(nft.chain)) {
-      //   curl -X POST \
-      // --url 'https://api.airstack.xyz/graphql' \
-      // -H "Content-Type: application/json" \
-      // --header 'Authorization: bearer 1756e62c0f0b643f1a6537459fccf70f2' \
-      // -d '{"query":"query MyQuery {\n  TokenNfts(input: {filter: {tokenId: {_eq: \"1\"}, address: {_eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\"}}, blockchain: degen}) {\n    TokenNft {\n      tokenId\n      address\n      token {\n        address\n        baseURI\n        name\n        logo {\n          small\n          large\n        }\n        totalSupply\n        owner {\n          addresses\n        }\n        chainId\n        blockchain\n        lastTransferBlock\n      }\n    }\n  }\n}"}' \
+    } else if (nft.apiOption == APIOption.airStack) {
+      if (airstackChains.contains(nft.chain)) {
+        // print(response);
+        Map<String, dynamic> ownersMap = {};
+        for (var ownerData in response['data']['TokenBalances']
+            ["TokenBalance"]) {
+          ownersMap[ownerData['tokenId']] = ownerData['owner']['addresses']
+              .first; // this gets the first owner address of a list. It looks like there can be multiple assigned to an NFT
+        }
+
+        Map<String, dynamic> ownershipCount = {};
+
+        ownersMap.entries.forEach((owner) {
+          if (ownershipCount.containsKey(owner.value)) {
+            ownershipCount[owner.value] += 1;
+          } else {
+            ownershipCount[owner.value] = 1;
+          }
+        });
+
+        ownershipCount.entries.forEach((owner) {
+          owners.add(Owner(
+            address: owner.key,
+            quantity: owner.value,
+          ));
+        });
+        return owners;
+      }
     } else {
       throw ArgumentError('Unsupported chain: ${nft.chain}');
     }

@@ -14,6 +14,7 @@ class NFT {
   final String? updatedAt;
   final bool isDisabled;
   final bool isNSFW;
+  final int? totalSupply;
 
   NFT(
       {required this.apiOption,
@@ -22,6 +23,7 @@ class NFT {
       required this.id,
       required this.address,
       this.tokenStandard,
+      this.totalSupply,
       this.name,
       this.description,
       this.imageUrl,

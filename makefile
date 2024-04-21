@@ -6,6 +6,8 @@ deploy:
 	firebase deploy
 
 local:
+	flutter clean
+	flutter build web --no-tree-shake-icons
 	firebase serve --only hosting
 
 t:
@@ -42,7 +44,7 @@ t:
 		--url 'https://api.airstack.xyz/graphql' \
 		--header 'Authorization: bearer 1756e62c0f0b643f1a6537459fccf70f2' \
 		-H "Content-Type: application/json" \
-		-d '{"query":"query MyQuery {\n  TokenBalances(\n    input: {\n      filter: {\n        tokenAddress: { _eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\" }\n        tokenId: { _eq: \"1\" }\n      }\n      blockchain: degen\n    }\n  ) {\n    TokenBalance {\n      owner {\n        addresses\n        domains {\n          name\n          isPrimary\n        }\n        socials {\n          dappName\n          profileName\n          userAssociatedAddresses\n        }\n        xmtp {\n          isXMTPEnabled\n        }\n      }\n    }\n  }\n}"}' \
+		-d '{"query":"query MyQuery { TokenBalances(input: {filter: {tokenAddress: { _eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\" } tokenId: { _eq: \"1\" } } blockchain: degen}) {TokenBalance { owner {addresses domains {name isPrimary } socials { dappName profileName userAssociatedAddresses } xmtp { isXMTPEnabled}}}}}"}' \
 
 
 nft:
@@ -50,8 +52,9 @@ nft:
 		--url 'https://api.airstack.xyz/graphql' \
 		-H "Content-Type: application/json" \
 		--header 'Authorization: bearer 1756e62c0f0b643f1a6537459fccf70f2' \
-		-d '{"query":"query MyQuery { TokenNfts(input: {filter: {tokenId: {_eq: \"1\"}, address: {_eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\"}}, blockchain: degen}) { TokenNft {tokenId address token {address baseURI name logo { small large} totalSupply owner { addresses } chainId blockchain lastTransferBlock }}}}"}' \
-
+		-d '{"query":"query MyQuery {TokenNfts(input: {filter: {}, blockchain: degen}) {TokenNft {address}}"}'
+        
+# '{"query":"query MyQuery { TokenNfts(input: {filter: {tokenId: {_eq: \"1\"}, address: {_eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\"}}, blockchain: degen}) { TokenNft {tokenId address token {address baseURI name logo { small large} totalSupply owner { addresses } chainId blockchain lastTransferBlock }}}}"}' \
 
 # TokenNfts
 # (input: {filter: 

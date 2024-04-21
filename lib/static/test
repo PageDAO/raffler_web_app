@@ -1,0 +1,17 @@
+{ 
+  "query" : "query MyQuery 
+  { TokenNfts 
+  ( 
+    input: 
+    { filter: 
+      { 
+        tokenId: 1, 
+        address: 0x8941F686BaADEe7bf5207a3aaC5974D21c462849
+       }
+    }, 
+    blockchain: ${nft.chain}
+  ) 
+  { TokenNft 
+    { tokenId address }
+  }"
+}

@@ -52,20 +52,21 @@ class _MyHomePageState extends State<MyHomePage> {
           owners: owners,
           ticketsDict: ticketsDict,
           onGetOwners: () async {
+            print("clicked get owners");
             if (nfts.isEmpty) {
               showToast("Add your NFT", context);
             }
-            if (!fetchedOwnersList) {
-              List<Owner>? response = await getHolders(nfts);
-              if (response != null) {
-                fetchedOwnersList = true;
-                owners = response;
-                ticketsDict = buildTixDict(owners); // build the tix dict
-              }
-              setState(() {
-                tixWidgetKey++;
-              });
+            // if (!fetchedOwnersList) {
+
+            List<Owner>? response = await getHolders(nfts);
+            if (response != null) {
+              fetchedOwnersList = true;
+              owners = response;
+              ticketsDict = buildTixDict(owners); // build the tix dict
             }
+            setState(() {
+              tixWidgetKey++;
+            });
           },
         );
       case 1:
@@ -98,6 +99,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Color getTabColor(bool isSelected) {
+    return isSelected
+        ? Theme.of(context).colorScheme.primary
+        : Theme.of(context).colorScheme.onBackground;
   }
 
   @override
@@ -268,7 +275,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                                                 context, true);
 
                                                             nfts.add(nft);
-
                                                             // clear the text editing controllers
                                                             apiKeyController
                                                                 .clear();
@@ -342,20 +348,28 @@ class _MyHomePageState extends State<MyHomePage> {
                                             Text(formatAddress(nft.address)),
                                             const Text("   "),
                                             Tooltip(
-                                              message: "View in OpenSea",
+                                              message: nft.apiOption ==
+                                                      APIOption.openSea
+                                                  ? "View in OpenSea"
+                                                  : "View on Airstack",
                                               child: InkWell(
-                                                onTap: () async {
-                                                  if (nft.openseaUrl != null) {
-                                                    await launchURL(
-                                                        nft.openseaUrl);
-                                                  }
-                                                },
+                                                onTap: nft.openseaUrl == null
+                                                    ? null
+                                                    : () async {
+                                                        if (nft.openseaUrl !=
+                                                            null) {
+                                                          await launchURL(
+                                                              nft.openseaUrl);
+                                                        }
+                                                      },
                                                 child: Icon(
                                                   Icons.launch,
                                                   size: 20,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
+                                                  color: nft.openseaUrl == null
+                                                      ? Colors.grey
+                                                      : Theme.of(context)
+                                                          .colorScheme
+                                                          .primary,
                                                 ),
                                               ),
                                             ),
@@ -439,70 +453,95 @@ class _MyHomePageState extends State<MyHomePage> {
                       const SizedBox(
                         height: 15,
                       ),
-                      Row(
-                        children: [
-                          InkWell(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(14)),
-                            onTap: () => {
-                              pageIdx.value = 3,
-                              pageIdx.notifyListeners(),
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
-                              child: Text(
-                                "Mint",
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          InkWell(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(14)),
-                            onTap: () => {
-                              pageIdx.value = 0,
-                              pageIdx.notifyListeners(),
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
-                              child: Text("Owners"),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          InkWell(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(14)),
-                            onTap: () => {
-                              pageIdx.value = 1,
-                              pageIdx.notifyListeners(),
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
-                              child: Text("Tickets"),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          InkWell(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(14)),
-                            onTap: () => {
-                              pageIdx.value = 2,
-                              pageIdx.notifyListeners(),
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
-                              child: Text("Winners"),
-                            ),
-                          ),
-                        ],
-                      ),
+                      ValueListenableBuilder(
+                          valueListenable: pageIdx,
+                          builder: (ctx, pgIdx, __) {
+                            return Row(
+                              children: [
+                                InkWell(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(14)),
+                                  onTap: () => {
+                                    pageIdx.value = 3,
+                                    pageIdx.notifyListeners(),
+                                  },
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(8.0, 4, 8.0, 4),
+                                    child: Text(
+                                      "  Mint  ",
+                                      style: TextStyle(
+                                        color: getTabColor(pageIdx.value == 3),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                InkWell(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(14)),
+                                  onTap: () => {
+                                    pageIdx.value = 0,
+                                    pageIdx.notifyListeners(),
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        8.0, 4, 8.0, 4),
+                                    child: Text(
+                                      "Owners",
+                                      style: TextStyle(
+                                        color: getTabColor(pageIdx.value == 0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                InkWell(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(14)),
+                                  onTap: () => {
+                                    pageIdx.value = 1,
+                                    pageIdx.notifyListeners(),
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        8.0, 4, 8.0, 4),
+                                    child: Text(
+                                      "Tickets",
+                                      style: TextStyle(
+                                        color: getTabColor(pageIdx.value == 1),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                InkWell(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(14)),
+                                  onTap: () => {
+                                    pageIdx.value = 2,
+                                    pageIdx.notifyListeners(),
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        8.0, 4, 8.0, 4),
+                                    child: Text(
+                                      "Winners",
+                                      style: TextStyle(
+                                        color: getTabColor(pageIdx.value == 2),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
                       const SizedBox(
                         height: 4,
                       ),

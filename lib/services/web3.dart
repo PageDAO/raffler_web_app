@@ -45,6 +45,7 @@ Future<NFT?> getNFT(NFT nft, APIOption apiOption, String apiKey) async {
   print(response);
   if (response == null) return null;
   // parse the response based on chain query
+
   NFT? responseNft = await Api().convertResponseToNFT(nft, apiOption, response);
 
   return responseNft;
@@ -53,8 +54,8 @@ Future<NFT?> getNFT(NFT nft, APIOption apiOption, String apiKey) async {
 Future<List<Owner>?> getHolders(List<NFT> nfts) async {
   List<Owner> owners = [];
   for (NFT nft in nfts) {
+    print("Get HOLDERS");
     Map<String, dynamic>? response = await Api().getHoldersResponse(nft);
-    print(response);
     if (response == null) return null;
     List<Owner>? responseOwners =
         await Api().convertResponseToHolders(nft, response);

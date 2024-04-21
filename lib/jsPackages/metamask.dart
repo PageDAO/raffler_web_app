@@ -62,3 +62,36 @@ class MetaMask {
     }
   }
 }
+
+Future<bool> broadcastContractTx() async {
+  try {
+    if (ethereum == null) {
+      return false;
+    }
+    var id = randomId();
+    var message = 'Please log in to MetaMask $id';
+
+    eval('''
+      async function setter(){
+        var provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        window.address = await provider.getSigner().getAddress();
+        window.sign = await provider.getSigner().signMessage("$message");
+        const network = await provider.getNetwork(); // https://docs.ethers.io/v5/api/providers/types/#providers-Network
+        const name = network.name;
+        window.network = name;
+      }
+      setter();
+      ''');
+    while (_address == null || _sign == null) {
+      //|| _network == null
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    // address = _address.toString();
+    // signature = _sign.toString();
+    // network = _network.toString();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}

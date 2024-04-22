@@ -52,11 +52,9 @@ class _MyHomePageState extends State<MyHomePage> {
           owners: owners,
           ticketsDict: ticketsDict,
           onGetOwners: () async {
-            print("clicked get owners");
             if (nfts.isEmpty) {
               showToast("Add your NFT", context);
             }
-            // if (!fetchedOwnersList) {
 
             List<Owner>? response = await getHolders(nfts);
             if (response != null) {

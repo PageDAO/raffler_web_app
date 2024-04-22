@@ -3,6 +3,8 @@ clean:
 	flutter build web --no-tree-shake-icons
 
 deploy:
+	flutter clean
+	flutter build web --no-tree-shake-icons
 	firebase deploy
 
 local:
@@ -53,35 +55,3 @@ nft:
 		-H "Content-Type: application/json" \
 		--header 'Authorization: bearer 1756e62c0f0b643f1a6537459fccf70f2' \
 		-d '{"query":"query MyQuery {TokenNfts(input: {filter: {}, blockchain: degen}) {TokenNft {address}}"}'
-        
-# '{"query":"query MyQuery { TokenNfts(input: {filter: {tokenId: {_eq: \"1\"}, address: {_eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\"}}, blockchain: degen}) { TokenNft {tokenId address token {address baseURI name logo { small large} totalSupply owner { addresses } chainId blockchain lastTransferBlock }}}}"}' \
-
-# TokenNfts
-# (input: {filter: 
-# {
-# 	tokenId: {_eq: \"1\"}, 
-# 	address: {_eq: \"0x8941F686BaADEe7bf5207a3aaC5974D21c462849\"}
-# }, 
-# blockchain: degen})
-# query getFields($entity:String,$show_hidden:Boolean) {
-#   getFields(entity:$entity,show_hidden:$show_hidden){
-#     id
-#     name
-#     name_label
-#     main_type
-#     is_required
-#     is_visible
-#     is_unique
-#     default_value
-#     catalog_type_id
-#     reference_field_id
-#     reference_fa_entity_id
-#     reference_fa_entity_name
-#   }
-# }
-
-# curl --location --request POST 'https://freeagent.network/api/graphql' \
-# --header 'Authorization: bearer MY_TOKEN' \
-# --header 'Content-Type: application/json' \
-# --header 'Cookie: hazel=True' \
-# --data-raw '{"query":"query listEntityValues($entity: String!, $fields: [String], $order: [[String]], $limit: Int, $offset: Int, $pattern: String, $filters: [Filter]) {\n        listEntityValues(entity: $entity, fields: $fields, order: $order, limit: $limit, offset: $offset, pattern: $pattern, filters: $filters) {\n          count\n          entity_values {\n            id\n            seq_id\n            field_values\n          }\n        }\n      }","variables":{"entity":"product","show_hidden":false}}'
